@@ -30,21 +30,25 @@
 // posición de la foto en la página.
 // ────────────────────────────────────────────────────────────────
 
-import alfombra from '$lib/assets/photos/alfombra.jpeg';
-import firmaNovia from '$lib/assets/photos/fimra-novia.jpeg';
-import firmaNovio from '$lib/assets/photos/firma-novio.jpeg';
-import saludo from '$lib/assets/photos/saludo.jpeg';
-import carro from '$lib/assets/photos/carro.jpeg';
-import abrazo from '$lib/assets/photos/abrazo.jpeg';
-import abrazoFuente from '$lib/assets/photos/abrazo-fuente.jpeg';
-import juntos from '$lib/assets/photos/juntos.jpeg';
-import aqui from '$lib/assets/photos/aqui.jpeg';
-import brindis from '$lib/assets/photos/brindis.jpeg';
-import hostia from '$lib/assets/photos/hostia.jpeg';
-import bocado from '$lib/assets/photos/bocado.jpeg';
+import type { Picture } from 'vite-imagetools';
+// El sufijo ?enhanced hace que Vite genere versiones AVIF/WebP de cada
+// foto (con sharp) y sirva la más liviana que el navegador soporte —
+// las fotos cargan bastante más rápido que con el .jpeg original.
+import alfombra from '$lib/assets/photos/alfombra.jpeg?enhanced';
+import firmaNovia from '$lib/assets/photos/fimra-novia.jpeg?enhanced';
+import firmaNovio from '$lib/assets/photos/firma-novio.jpeg?enhanced';
+import saludo from '$lib/assets/photos/saludo.jpeg?enhanced';
+import carro from '$lib/assets/photos/carro.jpeg?enhanced';
+import abrazo from '$lib/assets/photos/abrazo.jpeg?enhanced';
+import abrazoFuente from '$lib/assets/photos/abrazo-fuente.jpeg?enhanced';
+import juntos from '$lib/assets/photos/juntos.jpeg?enhanced';
+import aqui from '$lib/assets/photos/aqui.jpeg?enhanced';
+import brindis from '$lib/assets/photos/brindis.jpeg?enhanced';
+import hostia from '$lib/assets/photos/hostia.jpeg?enhanced';
+import bocado from '$lib/assets/photos/bocado.jpeg?enhanced';
 
 export interface AlbumPhoto {
-	src: string;
+	src: Picture;
 	caption?: string;
 	rotate?: number;
 }
@@ -56,15 +60,20 @@ export interface AlbumPageData {
 	photos: AlbumPhoto[];
 }
 
+// Máximo 2 fotos por página (con 3 se corta en pantallas de celular).
 export const albumPages: AlbumPageData[] = [
 	{
 		id: 'ceremonia',
 		heading: 'La ceremonia',
 		note: 'El día que dijimos que sí',
+		photos: [{ src: alfombra, caption: 'Nuestra entrada', rotate: -6 }]
+	},
+	{
+		id: 'promesa',
+		heading: 'Firmando la promesa',
 		photos: [
-			{ src: alfombra, caption: 'Nuestra entrada', rotate: -6 },
-			{ src: firmaNovia, caption: 'Firmando la promesa', rotate: 8 },
-			{ src: firmaNovio, caption: 'Para toda la vida', rotate: -4 }
+			{ src: firmaNovia, caption: 'Ella', rotate: 6 },
+			{ src: firmaNovio, caption: 'Él', rotate: -6 }
 		]
 	},
 	{
@@ -79,11 +88,15 @@ export const albumPages: AlbumPageData[] = [
 	{
 		id: 'primer-abrazo',
 		heading: 'Nuestro primer abrazo',
-		note: 'Bajo la luna, ya como esposos',
+		note: 'Ya como esposos',
+		photos: [{ src: abrazo, caption: 'Nuestro primer abrazo', rotate: -6 }]
+	},
+	{
+		id: 'bajo-la-luna',
+		heading: 'Bajo la luna',
 		photos: [
-			{ src: abrazo, caption: 'Nuestro primer abrazo', rotate: -7 },
-			{ src: abrazoFuente, rotate: 9 },
-			{ src: juntos, caption: 'Bajo la luna', rotate: -3 }
+			{ src: abrazoFuente, rotate: 6 },
+			{ src: juntos, caption: 'Bajo la luna', rotate: -6 }
 		]
 	},
 	{
@@ -105,6 +118,14 @@ export const albumPages: AlbumPageData[] = [
 		]
 	}
 ];
+
+// URL más liviana (WebP) de una foto, para el modal de zoom (que usa
+// una sola <img>, no un <picture>).
+export function fastSrc(pic: Picture): string {
+	const webpSrcset = pic.sources.webp;
+	const firstUrl = webpSrcset?.split(',')[0]?.trim().split(' ')[0];
+	return firstUrl || pic.img.src;
+}
 
 // Frase final animada del álbum, dividida en líneas para que aparezcan
 // una por una. Unidas con un espacio reproducen el texto original completo.

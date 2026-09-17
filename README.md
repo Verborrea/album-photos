@@ -22,22 +22,33 @@ En [`src/lib/data/config.ts`](src/lib/data/config.ts) cambia `eyebrow`,
 `title`, `subtitle` y `cta` por lo que quieras que se vea antes de abrir el
 álbum.
 
-### 3. Tus fotos y páginas
+### 3. La portada
 
-Todo el contenido del álbum vive en
+Es la primera página, una sola foto a pantalla completa estilo tapa de
+libro. Se edita en [`src/lib/data/config.ts`](src/lib/data/config.ts) →
+`coverConfig` (`photo`, `title`, `subtitle`).
+
+### 4. Tus fotos y páginas
+
+Todo el contenido del álbum (después de la portada) vive en
 [`src/lib/data/pages.ts`](src/lib/data/pages.ts):
 
 1. Copia tus fotos dentro de `src/lib/assets/photos/`.
-2. Impórtalas arriba del archivo (como las que ya están) y úsalas en
-   `albumPages`.
-3. Cada página puede tener las fotos que quieras — el diseño se acomoda
-   solo: si son exactamente 3, se muestran apiladas una encima de otra; si
-   son 2, 4 o 5, en collage tipo scrapbook.
+2. Impórtalas arriba del archivo (como las que ya están, con el sufijo
+   `?enhanced`) y úsalas en `albumPages`.
+3. Cada página puede tener las fotos que quieras — el diseño tipo collage
+   se acomoda solo. Para reordenar páginas o fotos, simplemente mueve los
+   bloques dentro de los arreglos.
 4. Cada foto admite un `caption` opcional (la notita escrita a mano) y un
    `rotate` opcional en grados (si no lo pones, se usa una inclinación por
    defecto). Al tocar la foto, el zoom gira desde ese ángulo hasta 0°.
 
-### 4. La frase final
+> El sufijo `?enhanced` en los imports hace que Vite (con `sharp`) genere
+> automáticamente versiones AVIF y WebP de cada foto — el navegador carga
+> la más liviana que soporte, así que las fotos pesan bastante menos que
+> los `.jpeg` originales sin que tengas que hacer nada manualmente.
+
+### 5. La frase final
 
 También en `pages.ts`, en `finalMessageLines`. Está dividida en líneas para
 que aparezcan una por una animadas; únelas con un espacio para ver el texto

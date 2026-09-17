@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { AlbumPageData } from '$lib/data/pages';
+	import type { Picture } from 'vite-imagetools';
+	import { fastSrc, type AlbumPageData } from '$lib/data/pages';
 
 	let {
 		page,
@@ -11,12 +12,12 @@
 		onPhotoClick: (src: string, rect: DOMRect, rotate: number) => void;
 	} = $props();
 
-	const rotations = [-7, 5, -4, 8, -9, 3, -5, 6];
+	const rotations = [-6, 6, -5, 7];
 	const tapeRotations = [-18, 14, -22, 10];
 
-	function click(e: MouseEvent, src: string, rotate: number) {
+	function click(e: MouseEvent, src: Picture, rotate: number) {
 		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-		onPhotoClick(src, rect, rotate);
+		onPhotoClick(fastSrc(src), rect, rotate);
 	}
 </script>
 
@@ -26,12 +27,15 @@
 			<h2 class="heading font-hand">{page.heading}</h2>
 		{/if}
 
-		<div class="collage">
+		<div
+			class="collage"
+			class:solo={page.photos.length === 1}
+			class:duo={page.photos.length === 2}
+		>
 			{#each page.photos as photo, i}
 				{@const rot = photo.rotate ?? rotations[i % rotations.length]}
 				<button
 					class="polaroid"
-					class:big={i % 3 === 0}
 					style="--rot: {rot}deg"
 					onclick={(e) => click(e, photo.src, rot)}
 					aria-label="Ampliar foto"
@@ -41,7 +45,7 @@
 						style="--trot: {tapeRotations[i % tapeRotations.length]}deg"
 						aria-hidden="true"
 					></span>
-					<img src={photo.src} alt={photo.caption ?? ''} loading="lazy" />
+					<enhanced:img src={photo.src} alt={photo.caption ?? ''} loading="lazy" />
 					{#if photo.caption}
 						<span class="cap font-hand">{photo.caption}</span>
 					{/if}
@@ -70,6 +74,9 @@
 
 	.page-scroll {
 		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 		overflow-y: auto;
 		overflow-x: hidden;
 		touch-action: pan-y;
@@ -90,8 +97,31 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: 1.8rem 0.8rem;
+		align-items: flex-start;
+		gap: 1.8rem 1rem;
 		padding: 0 0.2rem;
+	}
+
+	.collage.solo {
+		display: block;
+		text-align: center;
+	}
+
+	.collage.duo {
+		flex-wrap: nowrap;
+		flex-direction: column;
+		gap: 0;
+	}
+
+	.duo .polaroid:first-child {
+		align-self: flex-start;
+		margin-left: 4%;
+	}
+
+	.duo .polaroid:last-child {
+		align-self: flex-end;
+		margin-right: 4%;
+		margin-top: -1.8rem;
 	}
 
 	.polaroid {
@@ -100,26 +130,27 @@
 		padding: 0.6rem 0.6rem 2.5rem;
 		box-shadow: 0 10px 22px rgba(42, 34, 48, 0.22);
 		transform: rotate(var(--rot));
-		width: 42%;
+		width: 45%;
 		transition:
 			transform 0.25s ease,
 			box-shadow 0.25s ease;
 	}
 
-	.polaroid.big {
-		width: 54%;
+	.solo .polaroid {
+		display: inline-block;
+		width: 74%;
 	}
 
 	.polaroid:active {
 		transform: rotate(var(--rot)) scale(0.96);
 	}
 
-	.polaroid img {
+	.polaroid :global(img) {
 		display: block;
 		width: 100%;
 		aspect-ratio: 4 / 5;
-		object-fit: cover;
-		background: #eee;
+		object-fit: contain;
+		background: #f4f1ea;
 	}
 
 	.tape {

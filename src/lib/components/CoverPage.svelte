@@ -3,7 +3,7 @@
 </script>
 
 <div class="cover">
-	<img src={coverConfig.photo} alt="" class="cover-photo" />
+	<enhanced:img src={coverConfig.photo} alt="" class="cover-photo" />
 	<div class="scrim" aria-hidden="true"></div>
 	<div class="frame" aria-hidden="true"></div>
 

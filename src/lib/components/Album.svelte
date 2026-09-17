@@ -6,7 +6,7 @@
 	import AlbumPage from './AlbumPage.svelte';
 	import FinalPage from './FinalPage.svelte';
 	import PhotoZoomModal from './PhotoZoomModal.svelte';
-	import { albumPages } from '$lib/data/pages';
+	import { albumPages, fastSrc } from '$lib/data/pages';
 	import { audioState, togglePlay, toggleMute } from '$lib/audio.svelte';
 
 	// Página 0 = portada, luego una página por cada elemento de albumPages,
@@ -14,11 +14,15 @@
 	const totalPages = albumPages.length + 2;
 	const finalIndex = albumPages.length + 1;
 
+	// Lista de todas las fotos del álbum en orden, para el carrusel del zoom.
+	const flatPhotos = albumPages.flatMap((p) => p.photos.map((photo) => fastSrc(photo.src)));
+
 	let current = $state(0);
-	let zoom = $state<{ src: string; rect: DOMRect; rotate: number } | null>(null);
+	let zoom = $state<{ rect: DOMRect; rotate: number; index: number } | null>(null);
 
 	function handlePhotoClick(src: string, rect: DOMRect, rotate: number) {
-		zoom = { src, rect, rotate };
+		const idx = flatPhotos.indexOf(src);
+		zoom = { rect, rotate, index: idx < 0 ? 0 : idx };
 	}
 
 	function closeZoom() {
@@ -72,7 +76,13 @@
 </div>
 
 {#if zoom}
-	<PhotoZoomModal src={zoom.src} rect={zoom.rect} rotate={zoom.rotate} onClose={closeZoom} />
+	<PhotoZoomModal
+		photos={flatPhotos}
+		bind:index={zoom.index}
+		rect={zoom.rect}
+		rotate={zoom.rotate}
+		onClose={closeZoom}
+	/>
 {/if}
 
 <style>
