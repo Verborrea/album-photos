@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { finalMessageLines as segments } from '$lib/data/pages';
+	import { finalMessageLines as segments } from '$lib/data/albums';
 
 	let { active }: { active: boolean } = $props();
 </script>

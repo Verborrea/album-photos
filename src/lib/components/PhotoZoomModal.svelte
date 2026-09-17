@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { X, ChevronLeft, ChevronRight } from '@lucide/svelte';
 
 	let {
 		photos,
@@ -56,7 +55,11 @@
 		if (!dragging) return;
 		dragging = false;
 		const dx = e.clientX - startX;
-		if (Math.abs(dx) < 40) return;
+		if (Math.abs(dx) < 40) {
+			// Toque sin arrastre: cierra la foto (ya no hay botón de X).
+			close();
+			return;
+		}
 		if (dx < 0) next();
 		else prev();
 	}
@@ -67,11 +70,18 @@
 		if (e.key === 'ArrowLeft') prev();
 	}
 
-	// Arranca en la posición y el ángulo exactos de la foto en la página,
-	// y termina centrada, en grande y derecha (0 grados).
-	const initialStyle = `top:${rect.top}px; left:${rect.left}px; width:${rect.width}px; height:${rect.height}px; border-radius:8px; transform: rotate(${rotate}deg);`;
-	const finalStyle =
-		'top:50%; left:50%; width:min(92vw,640px); height:min(80vh,640px); transform:translate(-50%,-50%) rotate(0deg); border-radius:16px;';
+	// El cuadro ocupa siempre su tamaño y posición finales (centrado); solo
+	// animamos `transform` (nunca top/left/width/height) para que la
+	// animación corra en el compositor de la GPU y no en layout — así se ve
+	// fluida también en Android, no solo en iPhone.
+	const finalW = Math.min(window.innerWidth * 0.92, 640);
+	const finalH = Math.min(window.innerHeight * 0.8, 640);
+	const dx = rect.left + rect.width / 2 - window.innerWidth / 2;
+	const dy = rect.top + rect.height / 2 - window.innerHeight / 2;
+	const scaleX = rect.width / finalW;
+	const scaleY = rect.height / finalH;
+	const initialTransform = `translate(-50%, -50%) translate(${dx}px, ${dy}px) rotate(${rotate}deg) scale(${scaleX}, ${scaleY})`;
+	const finalTransform = 'translate(-50%, -50%)';
 </script>
 
 <svelte:window onkeydown={handleKey} />
@@ -80,7 +90,9 @@
 
 <div
 	class="frame"
-	style={expanded ? finalStyle : initialStyle}
+	style="transform: {expanded ? finalTransform : initialTransform}; border-radius: {expanded
+		? '16px'
+		: '8px'};"
 	onpointerdown={onPointerDown}
 	onpointerup={onPointerUp}
 	onpointercancel={() => (dragging = false)}
@@ -90,23 +102,6 @@
 	{#key index}
 		<img src={photos[index]} alt="" in:fly={{ x: dir * 80, duration: 220 }} />
 	{/key}
-
-	<button class="close-btn" onclick={close} aria-label="Cerrar foto">
-		<X size={20} />
-	</button>
-
-	{#if photos.length > 1}
-		{#if index > 0}
-			<button class="nav-btn nav-prev" onclick={prev} aria-label="Foto anterior">
-				<ChevronLeft size={22} />
-			</button>
-		{/if}
-		{#if index < photos.length - 1}
-			<button class="nav-btn nav-next" onclick={next} aria-label="Foto siguiente">
-				<ChevronRight size={22} />
-			</button>
-		{/if}
-	{/if}
 </div>
 
 <style>
@@ -124,19 +119,20 @@
 
 	.frame {
 		position: fixed;
+		top: 50%;
+		left: 50%;
+		width: min(92vw, 640px);
+		height: min(80vh, 640px);
 		z-index: 200;
 		overflow: hidden;
 		background: rgba(10, 8, 18, 0.4);
 		box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5);
 		transform-origin: center center;
 		touch-action: none;
+		will-change: transform;
 		transition:
-			top 0.42s cubic-bezier(0.2, 0.7, 0.3, 1),
-			left 0.42s cubic-bezier(0.2, 0.7, 0.3, 1),
-			width 0.42s cubic-bezier(0.2, 0.7, 0.3, 1),
-			height 0.42s cubic-bezier(0.2, 0.7, 0.3, 1),
-			border-radius 0.42s ease,
-			transform 0.42s cubic-bezier(0.2, 0.7, 0.3, 1);
+			transform 0.42s cubic-bezier(0.2, 0.7, 0.3, 1),
+			border-radius 0.42s ease;
 	}
 
 	.frame img {
@@ -149,41 +145,4 @@
 		pointer-events: none;
 	}
 
-	.close-btn {
-		position: absolute;
-		top: 0.6rem;
-		right: 0.6rem;
-		width: 2.4rem;
-		height: 2.4rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: #fff;
-		background: rgba(0, 0, 0, 0.45);
-		border-radius: 50%;
-		z-index: 2;
-	}
-
-	.nav-btn {
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
-		width: 2.4rem;
-		height: 2.4rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: #fff;
-		background: rgba(0, 0, 0, 0.35);
-		border-radius: 50%;
-		z-index: 2;
-	}
-
-	.nav-prev {
-		left: 0.6rem;
-	}
-
-	.nav-next {
-		right: 0.6rem;
-	}
 </style>

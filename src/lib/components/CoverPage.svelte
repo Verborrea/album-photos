@@ -1,16 +1,18 @@
 <script lang="ts">
-	import { coverConfig } from '$lib/data/config';
+	import type { AlbumConfig } from '$lib/data/albums';
+
+	let { cover }: { cover: AlbumConfig['cover'] } = $props();
 </script>
 
 <div class="cover">
-	<enhanced:img src={coverConfig.photo} alt="" class="cover-photo" />
+	<img src={cover.photo} alt="" class="cover-photo" />
 	<div class="scrim" aria-hidden="true"></div>
 	<div class="frame" aria-hidden="true"></div>
 
 	<div class="content">
-		<h1 class="title font-script">{coverConfig.title}</h1>
+		<h1 class="title font-script">{cover.title}</h1>
 		<div class="rule" aria-hidden="true"></div>
-		<p class="date font-serif">{coverConfig.subtitle}</p>
+		<p class="date font-serif">{cover.subtitle}</p>
 	</div>
 </div>
 

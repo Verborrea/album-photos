@@ -17,10 +17,22 @@ function ensureAudio(src: string) {
 }
 
 export function playWithFadeIn(src: string, durationMs = 5000, targetVolume = 0.85) {
+	const absoluteSrc = new URL(src, location.href).href;
+
+	// Misma canción ya sonando (o iniciando su fundido): no la reiniciamos.
+	if (audioEl && audioEl.src === absoluteSrc) return;
+
+	cancelAnimationFrame(fadeRaf);
+
+	// Cambiamos de álbum/canción: paramos la anterior antes de empezar la nueva.
+	if (audioEl) {
+		audioEl.pause();
+		audioEl = null;
+	}
+
 	const el = ensureAudio(src);
 	el.volume = 0;
 	audioState.started = true;
-	cancelAnimationFrame(fadeRaf);
 
 	el.play()
 		.then(() => (audioState.playing = true))

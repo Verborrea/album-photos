@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Picture } from 'vite-imagetools';
-	import { fastSrc, type AlbumPageData } from '$lib/data/pages';
+	import { fastSrc, type AlbumPageData } from '$lib/data/albums';
 
 	let {
 		page,
@@ -130,7 +130,7 @@
 		padding: 0.6rem 0.6rem 2.5rem;
 		box-shadow: 0 10px 22px rgba(42, 34, 48, 0.22);
 		transform: rotate(var(--rot));
-		width: 45%;
+		width: 52%;
 		transition:
 			transform 0.25s ease,
 			box-shadow 0.25s ease;
@@ -138,7 +138,7 @@
 
 	.solo .polaroid {
 		display: inline-block;
-		width: 74%;
+		width: 82%;
 	}
 
 	.polaroid:active {

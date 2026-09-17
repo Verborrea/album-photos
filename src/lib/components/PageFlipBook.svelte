@@ -79,7 +79,11 @@
 		// Si el gesto anterior terminó fuera de un elemento con click (por lo
 		// que nunca se disparó el click que limpia esta bandera), la reseteamos aquí.
 		suppressClick = false;
-		(e.target as Element).setPointerCapture?.(e.pointerId);
+		try {
+			(e.target as Element).setPointerCapture?.(e.pointerId);
+		} catch {
+			// Algunos navegadores pueden rechazar el id de puntero; no es crítico.
+		}
 	}
 
 	function onPointerMove(e: PointerEvent) {
@@ -164,9 +168,19 @@
 		>
 			<div class="face front">
 				{@render children(i)}
+				<div
+					class="curl-shadow"
+					style="opacity: {Math.min(1, Math.abs(angles[i]) / 90)}"
+					aria-hidden="true"
+				></div>
 			</div>
 			<div class="face back">
 				<div class="paper-texture"></div>
+				<div
+					class="curl-shadow"
+					style="opacity: {Math.max(0, Math.min(1, 1 - (Math.abs(angles[i]) - 90) / 90))}"
+					aria-hidden="true"
+				></div>
 			</div>
 		</div>
 	{/each}
@@ -200,7 +214,7 @@
 		backface-visibility: hidden;
 		overflow: hidden;
 		border-radius: 18px;
-		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+		box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 	}
 
 	.face.back {
@@ -214,5 +228,21 @@
 		background:
 			radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.04), transparent 40%),
 			radial-gradient(circle at 80% 70%, rgba(0, 0, 0, 0.04), transparent 40%);
+	}
+
+	/* Sombra que crece hacia los bordes mientras la hoja gira, simulando
+	   la curva de una página real (como en los lectores de ebooks) en
+	   vez de una rotación plana y rígida. */
+	.curl-shadow {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background: linear-gradient(
+			to right,
+			rgba(0, 0, 0, 0.4) 0%,
+			rgba(0, 0, 0, 0) 18%,
+			rgba(0, 0, 0, 0) 75%,
+			rgba(0, 0, 0, 0.3) 100%
+		);
 	}
 </style>

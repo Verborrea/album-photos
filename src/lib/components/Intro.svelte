@@ -1,14 +1,17 @@
 <script lang="ts">
-	import { introConfig } from '$lib/data/config';
-
-	let { onOpen }: { onOpen: () => void } = $props();
+	import { goto } from '$app/navigation';
+	import { siteConfig } from '$lib/data/config';
+	import { albums, albumSlugs } from '$lib/data/albums';
+	import { playWithFadeIn } from '$lib/audio.svelte';
 
 	let opening = $state(false);
 
-	function handleClick() {
+	function openAlbum(slug: string) {
 		if (opening) return;
 		opening = true;
-		onOpen();
+		const album = albums[slug];
+		playWithFadeIn(album.audioSrc, album.fadeInMs, album.targetVolume);
+		goto(`/${slug}`);
 	}
 </script>
 
@@ -24,15 +27,24 @@
 
 	<div class="heart" aria-hidden="true">♥</div>
 
-	<p class="eyebrow font-hand">{introConfig.eyebrow}</p>
-	<h1 class="title font-script">{introConfig.title}</h1>
-	<p class="subtitle font-serif">{introConfig.subtitle}</p>
+	<p class="eyebrow font-hand">{siteConfig.eyebrow}</p>
+	<h1 class="title font-script">{siteConfig.title}</h1>
+	<p class="subtitle font-serif">{siteConfig.subtitle}</p>
 
-	<button class="cta" onclick={handleClick} disabled={opening}>
-		<span>{opening ? 'Abriendo…' : introConfig.cta}</span>
-	</button>
+	<div class="buttons">
+		{#each albumSlugs as slug, i}
+			<button
+				class="cta"
+				style="animation-delay: {0.85 + i * 0.12}s"
+				onclick={() => openAlbum(slug)}
+				disabled={opening}
+			>
+				<span>{albums[slug].label}</span>
+			</button>
+		{/each}
+	</div>
 
-	<p class="date font-serif">{introConfig.weddingDate}</p>
+	<p class="date font-serif">{siteConfig.weddingDate}</p>
 </div>
 
 <style>
@@ -86,7 +98,11 @@
 	}
 
 	.heart {
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+		font-family:
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			sans-serif;
 		font-size: 4rem;
 		line-height: 1;
 		color: var(--blush);
@@ -129,23 +145,36 @@
 		letter-spacing: 0.35em;
 		text-transform: uppercase;
 		color: var(--blush);
-		margin: 0 0 2.8rem;
+		margin: 0 0 2.4rem;
 		opacity: 0;
 		animation: rise 0.9s ease forwards 0.6s;
+	}
+
+	.buttons {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.9rem;
+		width: 100%;
+		max-width: 20rem;
 	}
 
 	.cta {
 		background: linear-gradient(135deg, var(--gold), #c79a4b);
 		color: var(--ink);
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+		font-family:
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			sans-serif;
 		font-weight: 700;
 		letter-spacing: 0.01em;
 		font-size: 1.05rem;
-		padding: 1rem 2.4rem;
+		padding: 0.9rem 2rem;
 		border-radius: 999px;
 		box-shadow: 0 10px 30px rgba(217, 184, 114, 0.35);
 		opacity: 0;
-		animation: rise 0.9s ease forwards 0.9s;
+		animation: rise 0.9s ease forwards;
 		transition:
 			transform 0.2s ease,
 			box-shadow 0.2s ease,
@@ -161,12 +190,12 @@
 	}
 
 	.date {
-		margin-top: 1.4rem;
+		margin-top: 1.6rem;
 		font-size: 1.4rem;
 		letter-spacing: 0.1em;
 		color: rgba(217, 184, 114, 0.7);
 		opacity: 0;
-		animation: rise 0.9s ease forwards 1.1s;
+		animation: rise 0.9s ease forwards 1.3s;
 	}
 
 	@keyframes rise {

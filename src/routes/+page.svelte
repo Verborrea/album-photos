@@ -1,25 +1,18 @@
 <script lang="ts">
 	import Intro from '$lib/components/Intro.svelte';
-	import Album from '$lib/components/Album.svelte';
-	import { introConfig } from '$lib/data/config';
-	import { playWithFadeIn } from '$lib/audio.svelte';
+	import { siteConfig } from '$lib/data/config';
+	import { albums } from '$lib/data/albums';
 
-	let view = $state<'intro' | 'album'>('intro');
-
-	function openAlbum() {
-		playWithFadeIn(introConfig.audioSrc, introConfig.fadeInMs, introConfig.targetVolume);
-		setTimeout(() => {
-			view = 'album';
-		}, 500);
-	}
+	const description = `Un álbum digital para celebrar nuestros ${siteConfig.subtitle}.`;
 </script>
 
 <svelte:head>
 	<title>Nuestro Aniversario</title>
+	<meta name="description" content={description} />
+	<meta property="og:title" content="Nuestro Aniversario" />
+	<meta property="og:description" content={description} />
+	<meta property="og:type" content="website" />
+	<meta property="og:image" content={albums.novios.cover.photo} />
 </svelte:head>
 
-{#if view === 'intro'}
-	<Intro onOpen={openAlbum} />
-{:else}
-	<Album />
-{/if}
+<Intro />

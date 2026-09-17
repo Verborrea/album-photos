@@ -1,21 +1,35 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { Music, VolumeX, Play, Pause } from '@lucide/svelte';
 	import PageFlipBook from './PageFlipBook.svelte';
 	import CoverPage from './CoverPage.svelte';
 	import AlbumPage from './AlbumPage.svelte';
 	import FinalPage from './FinalPage.svelte';
 	import PhotoZoomModal from './PhotoZoomModal.svelte';
-	import { albumPages, fastSrc } from '$lib/data/pages';
-	import { audioState, togglePlay, toggleMute } from '$lib/audio.svelte';
+	import { fastSrc, type AlbumConfig } from '$lib/data/albums';
+	import { playWithFadeIn } from '$lib/audio.svelte';
 
-	// Página 0 = portada, luego una página por cada elemento de albumPages,
+	let { config }: { config: AlbumConfig } = $props();
+
+	// Respaldo: si se llega a este álbum sin pasar por el botón de inicio
+	// (o se navega directo de un álbum a otro), esto igual arranca la
+	// canción correcta — y si ya estaba sonando la misma, no la reinicia.
+	$effect(() => {
+		playWithFadeIn(config.audioSrc, config.fadeInMs, config.targetVolume);
+	});
+
+	// Página 0 = portada, luego una página por cada elemento de config.pages,
 	// y al final la página con la frase de aniversario.
-	const totalPages = albumPages.length + 2;
-	const finalIndex = albumPages.length + 1;
+	const totalPages = $derived(config.pages.length + 2);
+	const finalIndex = $derived(config.pages.length + 1);
 
 	// Lista de todas las fotos del álbum en orden, para el carrusel del zoom.
-	const flatPhotos = albumPages.flatMap((p) => p.photos.map((photo) => fastSrc(photo.src)));
+	const flatPhotos = $derived(
+		config.pages.flatMap((p) => p.photos.map((photo) => fastSrc(photo.src)))
+	);
+
+	const colorVars = $derived(
+		`--navy-deep:${config.colors.navyDeep}; --navy-mid:${config.colors.navyMid}; --navy-soft:${config.colors.navySoft}; --wine:${config.colors.wine}; --blush:${config.colors.blush}; --gold:${config.colors.gold};`
+	);
 
 	let current = $state(0);
 	let zoom = $state<{ rect: DOMRect; rotate: number; index: number } | null>(null);
@@ -30,32 +44,22 @@
 	}
 </script>
 
-<div class="album" in:fade>
+<div class="album" style={colorVars} in:fade>
 	<div class="topbar">
-		<button class="icon-btn" onclick={toggleMute} aria-label="Silenciar música">
-			{#if audioState.muted}
-				<VolumeX size={18} />
-			{:else}
-				<Music size={18} />
-			{/if}
-		</button>
 		<span class="counter font-hand">Página {current + 1} de {totalPages}</span>
-		<button class="icon-btn" onclick={togglePlay} aria-label="Pausar o reproducir">
-			{#if audioState.playing}
-				<Pause size={18} />
-			{:else}
-				<Play size={18} />
-			{/if}
-		</button>
 	</div>
 
 	<div class="stage">
 		<PageFlipBook count={totalPages} bind:current>
 			{#snippet children(i: number)}
 				{#if i === 0}
-					<CoverPage />
-				{:else if i <= albumPages.length}
-					<AlbumPage page={albumPages[i - 1]} pageNumber={i} onPhotoClick={handlePhotoClick} />
+					<CoverPage cover={config.cover} />
+				{:else if i <= config.pages.length}
+					<AlbumPage
+						page={config.pages[i - 1]}
+						pageNumber={i}
+						onPhotoClick={handlePhotoClick}
+					/>
 				{:else}
 					<FinalPage active={current === finalIndex} />
 				{/if}
@@ -97,25 +101,10 @@
 	.topbar {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
+		justify-content: center;
 		padding: max(0.9rem, env(safe-area-inset-top)) 1rem 0.7rem;
 		color: var(--cream);
 		z-index: 50;
-	}
-
-	.icon-btn {
-		width: 2.75rem;
-		height: 2.75rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: rgba(255, 255, 255, 0.08);
-		border-radius: 50%;
-		touch-action: manipulation;
-	}
-
-	.icon-btn:active {
-		background: rgba(255, 255, 255, 0.18);
 	}
 
 	.counter {
