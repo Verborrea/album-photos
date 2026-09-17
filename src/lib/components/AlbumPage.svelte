@@ -136,11 +136,12 @@
 
 	.cap {
 		position: absolute;
-		bottom: 0.2rem;
+		bottom: 0.6rem;
 		left: 0.25rem;
 		right: 0.25rem;
 		text-align: center;
 		font-size: 1.05rem;
+		line-height: 0.8;
 		color: var(--ink);
 	}
 

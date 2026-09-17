@@ -1,10 +1,23 @@
 // ────────────────────────────────────────────────────────────────
-// AQUÍ PERSONALIZAS TU ÁLBUM.
+// AQUÍ PERSONALIZAS EL CONTENIDO DEL ÁLBUM (orden, texto y fotos).
 //
-// Cada objeto dentro de `albumPages` es UNA página del libro.
+// La portada (la primera página, con una sola foto) se edita aparte,
+// en src/lib/data/config.ts → `coverConfig`.
+//
+// Cada objeto dentro de `albumPages` es UNA página del libro, en el
+// orden en que aparece en este arreglo — para reordenar páginas,
+// simplemente mueve el bloque `{ id: ..., heading: ..., ... }`
+// completo a otra posición del arreglo.
+//
+// Dentro de cada página:
+//   `heading` → título grande de la página.
+//   `note`    → notita pequeña al final de la página.
+//   `photos`  → arreglo de fotos, en el orden que quieras que aparezcan.
+//               Cada foto puede tener `caption` (el texto bajo la foto).
+// Cambia cualquiera de esos textos directamente aquí abajo.
+//
 // Una página puede tener las fotos que quieras (el diseño las acomoda
-// solo, tipo collage) — si son exactamente 3, se muestran apiladas
-// una encima de otra en vez de en cuadrícula.
+// solo, tipo collage).
 //
 // Para usar tus propias fotos:
 //   1. Copia tus imágenes dentro de `src/lib/assets/photos/`.
@@ -46,7 +59,7 @@ export interface AlbumPageData {
 export const albumPages: AlbumPageData[] = [
 	{
 		id: 'ceremonia',
-		heading: 'Nuestra boda',
+		heading: 'La ceremonia',
 		note: 'El día que dijimos que sí',
 		photos: [
 			{ src: alfombra, caption: 'Nuestra entrada', rotate: -6 },

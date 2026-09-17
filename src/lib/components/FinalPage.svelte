@@ -86,11 +86,7 @@
 	}
 
 	.heart-motif {
-		font-family:
-			-apple-system,
-			BlinkMacSystemFont,
-			'Segoe UI',
-			sans-serif;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 		font-size: 4.4rem;
 		line-height: 1;
 		color: var(--blush);

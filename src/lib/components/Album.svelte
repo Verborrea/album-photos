@@ -2,14 +2,17 @@
 	import { fade } from 'svelte/transition';
 	import { Music, VolumeX, Play, Pause } from '@lucide/svelte';
 	import PageFlipBook from './PageFlipBook.svelte';
+	import CoverPage from './CoverPage.svelte';
 	import AlbumPage from './AlbumPage.svelte';
 	import FinalPage from './FinalPage.svelte';
 	import PhotoZoomModal from './PhotoZoomModal.svelte';
 	import { albumPages } from '$lib/data/pages';
 	import { audioState, togglePlay, toggleMute } from '$lib/audio.svelte';
 
-	const totalPages = albumPages.length + 1;
-	const finalIndex = albumPages.length;
+	// Página 0 = portada, luego una página por cada elemento de albumPages,
+	// y al final la página con la frase de aniversario.
+	const totalPages = albumPages.length + 2;
+	const finalIndex = albumPages.length + 1;
 
 	let current = $state(0);
 	let zoom = $state<{ src: string; rect: DOMRect; rotate: number } | null>(null);
@@ -45,8 +48,10 @@
 	<div class="stage">
 		<PageFlipBook count={totalPages} bind:current>
 			{#snippet children(i: number)}
-				{#if i < finalIndex}
-					<AlbumPage page={albumPages[i]} pageNumber={i + 1} onPhotoClick={handlePhotoClick} />
+				{#if i === 0}
+					<CoverPage />
+				{:else if i <= albumPages.length}
+					<AlbumPage page={albumPages[i - 1]} pageNumber={i} onPhotoClick={handlePhotoClick} />
 				{:else}
 					<FinalPage active={current === finalIndex} />
 				{/if}
@@ -55,7 +60,7 @@
 	</div>
 
 	<div class="dots">
-		{#each Array(totalPages) as _, i}
+		{#each Array(totalPages) as _, i (i)}
 			<button
 				class="dot"
 				class:active={i === current}
